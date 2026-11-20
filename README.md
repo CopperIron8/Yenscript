@@ -1,12 +1,12 @@
 # Yenscript
 
-Встраиваемый типизированный язык, компилирующий `.ys` в **core WebAssembly**.
-Ядро написано на F# / .NET 9, CLI - на C# / .NET 9.
+An embeddable, statically typed language that compiles `.ys` programs to **core WebAssembly**.
+The compiler core uses F# / .NET 9; the CLI uses C# / .NET 9.
 
-Пайплайн: `.ys → Parser → проверка типов и lowering → WASM IR → WAT → wat2wasm → .wasm + .meta.json`.
-Core не читает файловую систему и не запускает процессы: WABT вызывает CLI.
+Pipeline: `.ys → Parser → type checking and lowering → WASM IR → WAT → wat2wasm → .wasm + .meta.json`.
+The core never reads the filesystem or starts processes; the CLI invokes WABT.
 
-## Пример
+## Example
 
 ```yenscript
 using package system;
@@ -26,13 +26,13 @@ fn main() {
 }
 ```
 
-Точка входа - обязательная `fn main()` без параметров, с типом `void`.
-Объявления пакетов и функций находятся снаружи, исполняемые операторы - только внутри функций.
-Хост явно вызывает экспорт `_start` один раз; WASM start-секции нет.
+The required entry point is `fn main()`, with no parameters and a void return type.
+Package and function declarations remain at module scope; executable statements belong
+inside functions. The host explicitly calls the `_start` export once; there is no WASM start section.
 
-## Сборка компилятора
+## Build the compiler
 
-Нужен SDK .NET 9 либо совместимый более новый SDK. Для managed-запуска нужен runtime .NET 9.
+Use the .NET 9 SDK or a compatible newer SDK. Managed execution requires the .NET 9 runtime.
 
 ```sh
 dotnet restore Yenscript.sln
@@ -43,18 +43,18 @@ dotnet fantomas src/Yenscript.Core --check
 dotnet fantomas tests/Yenscript.Core.Tests --check
 ```
 
-## Компиляция программы
+## Compile a program
 
-Установите [WABT](https://github.com/WebAssembly/wabt) с `wat2wasm` в PATH.
-Проверяемая версия toolchain - WABT 1.0.42. Это внешняя зависимость **компиляции**,
-но готовому WASM-модулю WABT и .NET не нужны.
+Install [WABT](https://github.com/WebAssembly/wabt) with `wat2wasm` on PATH.
+The tested toolchain version is WABT 1.0.42. This is an external **compilation**
+dependency; generated WASM modules do not require WABT or .NET at runtime.
 
 ```sh
 dotnet run --project src/Yenscript.Cli -- build examples/hello.ys -o artifacts/hello.wasm
 dotnet run --project src/Yenscript.Cli -- check examples/hello.ys
 ```
 
-После Native AOT-публикации:
+After Native AOT publishing:
 
 ```sh
 yenscriptc build examples/hello.ys -o hello.wasm
@@ -62,15 +62,15 @@ yenscriptc build examples/hello.ys -o hello.wasm --wat2wasm /path/to/wat2wasm
 yenscriptc check examples/hello.ys
 ```
 
-Результат: `hello.wasm`, `hello.wat`, `hello.meta.json`.
-`check` не записывает файлы и не требует WABT. Ошибки содержат код и позицию.
-Коды выхода: 0 - успех, 1 - ошибка. До успешной сборки и создания metadata предыдущий
-output не заменяется. Три итоговых файла не являются общей атомарной транзакцией.
+Outputs: `hello.wasm`, `hello.wat`, and `hello.meta.json`.
+`check` writes no files and does not require WABT. Diagnostics include a code and source position.
+Exit codes: 0 for success, 1 for failure. Previous outputs are not replaced until assembly
+and metadata generation succeed. The three output files are not a single atomic transaction.
 
-## Пакеты
+## Packages
 
-`system` встроен; `console` - объект этого пакета, не отдельный пакет.
-Остальные `.ysp` загружает CLI или встраивающее приложение:
+`system` is embedded; `console` is an object in that package, not a separate package.
+Other `.ysp` files are loaded by the CLI or embedding application:
 
 ```yenscript
 using package custom as c;
@@ -79,67 +79,67 @@ using package "C:/Users/Me/Documents/host.ysp" as host;
 from tools import *;
 ```
 
-Имя ищется рядом с `.ys` как `custom.ysp`; относительный путь считается от исходника,
-зависимости - от файла пакета. Абсолютные пути разрешены. При выполнении в недоверенной
-среде ограничивайте доступ resolver-а на стороне хоста.
-Пакет объявляет host API, но сам не поставляет реализацию: хост связывает WASM imports.
+A named package is located beside the `.ys` file as `custom.ysp`. Relative paths are
+resolved against the source file; dependencies are resolved against the package file.
+Absolute paths are allowed. Restrict resolver access in the host when handling untrusted input.
+A package declares a host API but does not implement it: the host links its WASM imports.
 
-## Исполнение и встраивание
+## Execution and embedding
 
-Модуль экспортирует `memory`, `alloc(i32)->i32`, `free(i32,i32)` и `_start()`.
-Нужны три функции `env`: `console_print`, `console_warning`, `console_error`,
-каждая принимает UTF-8 `(ptr, len)`. `console:error` не завершает программу.
-Другие imports определяются подключёнными пакетами.
+Modules export `memory`, `alloc(i32)->i32`, `free(i32,i32)`, and `_start()`.
+Three `env` functions are required: `console_print`, `console_warning`, and `console_error`.
+Each accepts UTF-8 `(ptr, len)`. `console:error` does not terminate the program.
+Additional imports are determined by the connected packages.
 
-`wasmtime run hello.wasm` сам по себе недостаточен: обычный CLI не предоставляет
-наши `env.console_*`. Используйте host-приложение или SDK. Проверенный Python-хост:
+`wasmtime run hello.wasm` alone is insufficient: the standard CLI does not supply
+our `env.console_*` imports. Use an embedding application or SDK. A tested Python host:
 
 ```sh
 python -I -m pip install wasmtime==38.0.0
 python -I scripts/run-wasm.py hello.wasm
 ```
 
-Хост ограничивает fuel, не подключает WASI, перехватывает traps и использует `.meta.json`
-для поиска позиции исходника. Пример Rust/Wasmtime: [embedding](docs/embedding.md).
-Линковка дополнительных native-функций - ответственность приложения.
+The host limits fuel, does not link WASI, catches traps, and uses `.meta.json` to
+report source positions. A Rust/Wasmtime example is included in [Embedding](docs/embedding.md).
+The application is responsible for linking additional native functions.
 
-Чистый API для .NET:
+Pure .NET API:
 
 ```fsharp
 Core.compile source // Result<string, Diagnostic list>: WAT
 Core.compileWithPackages (Map.ofList ["../packages/host.ysp", packageText]) source
 ```
 
-Второй API не читает файлы. Ключи - точные references из исходника/зависимостей.
-Публичный API возвращает WAT, а не выдаёт текст за бинарный WASM.
+The second API does not read files. Keys are exact references from source/dependency declarations.
+The public API returns WAT text, not binary WASM disguised as a string.
 
-## Документация
+## Documentation
 
-- [Язык](docs/language.md)
-- [Пакеты и system](docs/packages.md)
-- [ABI, source maps и встраивание](docs/embedding.md)
+- [Language reference](docs/language.md)
+- [Packages and system](docs/packages.md)
+- [ABI, source maps, and embedding](docs/embedding.md)
 - [Roadmap](roadmap.md)
 
-## Проверки
+## Verification
 
-Unit-тесты покрывают парсер, проверки типов, IR/emission, manifests, resolver и metadata.
-Сквозные fixtures компилируются реальным WABT и выполняются Wasmtime с ограничением fuel:
-условия/циклы, short-circuit, рекурсия, строки, таблицы, native-объекты, внешние пакеты,
-стандартная библиотека и trap с source map.
+Unit tests cover parsing, type checking, IR/emission, manifests, resolution, and metadata.
+End-to-end fixtures are assembled by real WABT and executed by Wasmtime with bounded fuel:
+conditions/loops, short-circuiting, recursion, strings, tables, native objects, external
+packages, the standard library, and source-mapped traps.
 
 ```sh
 python -I -m pip install wasmtime==38.0.0
 bash scripts/wasm-integration.sh
-bash scripts/publish.sh win-x64  # на Windows с C++ Build Tools
-bash scripts/publish.sh linux-x64 # на Linux с clang и zlib1g-dev
+bash scripts/publish.sh win-x64   # Windows with C++ Build Tools
+bash scripts/publish.sh linux-x64 # Linux with clang and zlib1g-dev
 ```
 
-Компилятор публикуется Native AOT для Windows/Linux x64. WABT не встроен в этот бинарник.
-WASM backend использует i32, UTF-8 и линейную память; GC и автоматический сборщик
-недостижимых строк/таблиц не реализованы. Подробные ограничения изложены в ABI-документе.
-Новый backend несовместим с прежними опубликованными версиями: старые теги не обновлялись.
+The compiler is published with Native AOT for Windows/Linux x64. WABT is not embedded
+in that executable. The WASM backend uses i32, UTF-8, and linear memory; automatic
+garbage collection of unreachable strings/tables is not implemented. Detailed limitations
+are documented in the ABI reference. This backend is incompatible with earlier versions.
 
-## Лицензия
+## License
 
 [MIT License](LICENSE). Copyright (c) 2026 CopperIron8.
-Лицензии WABT, Wasmtime и NuGet-зависимостей сохраняются отдельно.
+WABT, Wasmtime, and NuGet dependencies retain their respective licenses.
