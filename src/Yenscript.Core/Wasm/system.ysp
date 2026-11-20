@@ -1,0 +1,28 @@
+package system;
+version "0.1.0";
+
+// The host supplies these methods. Strings use the ptr/length host ABI.
+native object console {
+    method print(message: string): void @host "env" "console_print";
+    method warning(message: string): void @host "env" "console_warning";
+    method error(message: string): void @host "env" "console_error";
+}
+
+// __yenscript bindings are implemented by the compiler's portable WASM runtime.
+native object math {
+    method abs(value: int): int @host "__yenscript" "abs";
+    method min(a: int, b: int): int @host "__yenscript" "min";
+    method max(a: int, b: int): int @host "__yenscript" "max";
+    method clamp(value: int, low: int, high: int): int @host "__yenscript" "clamp";
+    method pow(value: int, exponent: int): int @host "__yenscript" "pow";
+}
+
+native object strings {
+    method byteLength(value: string): int @host "__yenscript" "byte_length";
+    method concat(left: string, right: string): string @host "__yenscript" "concat";
+}
+
+native object convert {
+    method intToString(value: int): string @host "__yenscript" "int_to_string";
+    method boolToString(value: bool): string @host "__yenscript" "bool_to_string";
+}

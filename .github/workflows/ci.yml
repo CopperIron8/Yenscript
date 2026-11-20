@@ -1,0 +1,67 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - run: dotnet tool restore
+      - run: dotnet restore Yenscript.sln
+      - run: dotnet build Yenscript.sln -c Release --no-restore -warnaserror
+      - run: dotnet test Yenscript.sln -c Release --no-build --logger trx
+      - run: dotnet fantomas src/Yenscript.Core --check
+      - run: dotnet fantomas tests/Yenscript.Core.Tests --check
+      - run: dotnet format src/Yenscript.Cli/Yenscript.Cli.csproj --verify-no-changes --no-restore
+      - run: dotnet format tests/Yenscript.Cli.Tests/Yenscript.Cli.Tests.csproj --verify-no-changes --no-restore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: '**/TestResults/*.trx'
+          if-no-files-found: ignore
+  aot:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            rid: linux-x64
+          - os: windows-2022
+            rid: win-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Install Linux native build prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -I scripts/install-wabt.py
+      - run: python -I scripts/install-wasm-tools.py
+      - run: python -I -m pip install wasmtime==38.0.0
+      - name: Execute WebAssembly integration fixtures
+        shell: bash
+        run: bash scripts/wasm-integration.sh
+      - name: Publish and smoke-test native binary
+        shell: bash
+        run: bash scripts/publish.sh '${{ matrix.rid }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yenscript-${{ matrix.rid }}
+          path: artifacts/publish/${{ matrix.rid }}/yenscript*
+          if-no-files-found: error

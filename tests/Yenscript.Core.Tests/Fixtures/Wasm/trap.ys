@@ -1,0 +1,6 @@
+fn divide(value: int): int {
+    return 10 / value;
+}
+fn main() {
+    var result: int = divide(0);
+}

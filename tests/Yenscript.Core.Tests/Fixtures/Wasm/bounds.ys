@@ -1,0 +1,4 @@
+fn main() {
+    var values: table<int> = {1, 2};
+    var invalid: int = values:Get(2);
+}

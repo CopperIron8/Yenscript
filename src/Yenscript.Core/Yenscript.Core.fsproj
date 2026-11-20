@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OtherFlags>$(OtherFlags) --reflectionfree</OtherFlags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FParsec" Version="2.0.0-beta2" />
+    <EmbeddedResource Include="Wasm/system.ysp" LogicalName="Yenscript.Core.Wasm.system.ysp" />
+    <Compile Include="Diagnostic.fs" />
+    <Compile Include="Lexer.fs" />
+    <Compile Include="Ast.fs" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="WasmPackages.fs" />
+    <Compile Include="WasmIr.fs" />
+    <Compile Include="WasmRuntime.fs" />
+    <Compile Include="WasmBuiltins.fs" />
+    <Compile Include="WasmEmitter.fs" />
+    <Compile Include="WasmCompiler.fs" />
+    <Compile Include="Compiler.fs" />
+  </ItemGroup>
+</Project>

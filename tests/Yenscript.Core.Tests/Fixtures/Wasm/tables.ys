@@ -1,0 +1,12 @@
+using package system;
+from system import *;
+fn pass(value: table<int>): table<int> { return value; }
+fn main() {
+    var values: table<int> = pass({1, 2, 3});
+    var nested: table<table<int>> = {{1, 2}, {3}};
+    var empty: table<int> = {};
+    var words: table<string> = {"one", "two"};
+    if (values.Length == 3 && nested.Length == 2 && empty.Length == 0 && words.Length == 2) {
+        console:print("tables-ok");
+    }
+}

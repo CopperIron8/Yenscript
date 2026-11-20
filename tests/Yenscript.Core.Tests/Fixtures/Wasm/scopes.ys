@@ -1,0 +1,13 @@
+using package system;
+from system import *;
+fn main() {
+    var x: int = 9;
+    var skipped: bool = false && (1 / 0 == 0);
+    var kept: bool = true || (1 / 0 == 0);
+    if (!skipped && kept) { console:print("short-circuit-ok"); }
+    for (var i: int = 0; i < 3; i = i + 1) {
+        var x: int = i * 2;
+        if (x == 4) { console:print("for-ok"); }
+    }
+    if (x == 9) { console:print("scope-ok"); }
+}

@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+    <Version>0.1.0</Version>
+    <!-- Patched Native AOT/runtime; do not suppress NuGet security auditing. -->
+    <RuntimeFrameworkVersion>9.0.23</RuntimeFrameworkVersion>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,9 @@
+using package system;
+from system import *;
+using package "packages/math.ysp" as math;
+from math import *;
+fn main() {
+    var result: int = math:add(20, 22);
+    if (result == 42) { console:print("external-ok"); }
+    record("host UTF-8: 世界");
+}

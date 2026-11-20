@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
+    <PackageReference Include="FsCheck.Xunit" Version="3.2.0" />
+    <Compile Include="TestHelpers.fs" />
+    <Compile Include="LexerTests.fs" />
+    <Compile Include="ParserTests.fs" />
+    <Compile Include="WasmCompilerTests.fs" />
+    <Compile Include="WasmPackageTests.fs" />
+    <None Include="Fixtures/Wasm/**/*" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="../../src/Yenscript.Core/Yenscript.Core.fsproj" />
+  </ItemGroup>
+</Project>

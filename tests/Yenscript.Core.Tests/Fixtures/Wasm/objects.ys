@@ -1,0 +1,14 @@
+using package system;
+from system import *;
+using package "packages/objects.ysp" as o;
+from o import *;
+fn main() {
+    var counter: Counter = o:create();
+    counter.Value = 40;
+    var result: int = counter:Add(2);
+    var mode: Mode = o.Mode.Second;
+    var other: Counter = Counter.Default;
+    if (counter.Value == 42 && result == 42 && mode == Mode.Second) {
+        console:print("objects-ok");
+    }
+}

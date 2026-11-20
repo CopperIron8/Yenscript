@@ -1,0 +1,12 @@
+using package system;
+from system import *;
+fn identity(value: string): string { return value; }
+fn report(value: string) { console:print(value); }
+fn main() {
+    var message: string = identity("Hello, 世界");
+    report(message);
+    message = "changed";
+    console:warning(message);
+    var empty: string;
+    console:error(empty);
+}

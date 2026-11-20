@@ -1,0 +1,9 @@
+package objects;
+version "1.0.0";
+native enum Mode { First; Second; }
+native type Counter {
+    property Value: int @get "host" "counter_get" @set "host" "counter_set";
+    method Add(amount: int): int @host "host" "counter_add";
+    static Default: Counter @host "host" "counter_default";
+}
+native function create(): Counter @host "host" "counter_create";

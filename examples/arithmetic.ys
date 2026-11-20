@@ -1,0 +1,13 @@
+using package system;
+from system import *;
+
+fn factorial(n: int): int {
+    if (n <= 1) { return 1; }
+    else { return n * factorial(n - 1); }
+}
+fn main() {
+    console:print(strings:concat("factorial(5)=", convert:intToString(factorial(5))));
+    for (var i: int = 0; i < 3; i = i + 1) {
+        console:print(convert:intToString(math:pow(2, i)));
+    }
+}

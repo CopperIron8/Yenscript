@@ -1,0 +1,6 @@
+package math;
+version "1.0.0";
+requires "base.ysp" version "1.0.0";
+
+native function add(left: int, right: int): int @host "host" "add";
+native function record(message: string): void @host "host" "record";

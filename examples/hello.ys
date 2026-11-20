@@ -1,0 +1,8 @@
+using package system;
+from system import *;
+
+fn main() {
+    console:print("Hello, world!");
+    console:warning("This is a warning");
+    console:error("This message does not abort execution");
+}

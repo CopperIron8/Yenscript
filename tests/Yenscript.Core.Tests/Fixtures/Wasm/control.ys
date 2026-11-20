@@ -1,0 +1,19 @@
+using package system;
+from system import *;
+
+fn main() {
+    var x: int = 1 + 2 * 3;
+    if (x == 7) {
+        console:print("precedence-ok");
+    } else {
+        console:error("wrong");
+    }
+    while (x > 4) {
+        console:print("loop");
+        x = x - 1;
+    }
+    var y: int = (3 + 4) * 2;
+    if (y == 14) {
+        console:print("grouping-ok");
+    }
+}

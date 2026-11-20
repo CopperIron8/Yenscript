@@ -1,0 +1,12 @@
+using package system;
+from system import *;
+fn main() {
+    var values: table<int> = {1, 2, 3};
+    values:Set(1, 42);
+    for (var i: int = 0; i < values.Length; i = i + 1) {
+        console:print(convert:intToString(values:Get(i)));
+    }
+    var nested: table<table<int>> = {{1, 2}, {3}};
+    var first: table<int> = nested:Get(0);
+    console:print(convert:intToString(first:Get(1)));
+}

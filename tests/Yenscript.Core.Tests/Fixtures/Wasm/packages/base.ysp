@@ -1,0 +1,4 @@
+package base;
+version "1.0.0";
+
+native function identity(value: int): int @host "host" "identity";

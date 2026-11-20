@@ -1,0 +1,4 @@
+fn main() {
+    var values: table<int>;
+    var invalid: int = values.Length;
+}

@@ -1,0 +1,20 @@
+using package system;
+from system import *;
+
+fn factorial(n: int): int {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+fn report(ok: bool) {
+    if (ok) { console:print("functions-ok"); }
+    else { console:error("wrong"); }
+}
+
+fn main() {
+    var value: int = factorial(5);
+    report(value == 120);
+}
